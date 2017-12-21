@@ -1,5 +1,6 @@
 #include "lib.h"
 #include "version.h"
+#include <algorithm>
 
 iplist filter(const iplist & l, int first_byte)
 {
