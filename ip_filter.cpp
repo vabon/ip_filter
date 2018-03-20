@@ -49,14 +49,14 @@ void print(iplist & ip_list)
 
 ip to_ip(const vstr & v_str)
 {
-    ip v_uchar(v_str.size());
+    ip v_uchar;
 
-    //std::for_each(v_str.begin(), v_str.end(), [](const std::string &str){});
-
-    for (auto i = 0; i < v_str.size(); i++)
-    {
-        v_uchar[i] = static_cast<unsigned char>(std::stoi(v_str[i]));
-    }
+    std::transform(v_str.begin(), v_str.end(), std::back_inserter(v_uchar),
+                   [](const std::string & str)
+                   {
+                       return static_cast<unsigned char>(std::stoi(str));
+                   }
+                  );
 
     return v_uchar;
 }
@@ -74,10 +74,8 @@ int main(int argc, const char * argv[])
             ip_pool.push_back(to_ip(split(v.at(0), '.')));
         }
         
-        std::sort(ip_pool.begin(), ip_pool.end());
-        
-        std::reverse(ip_pool.begin(), ip_pool.end());
-        
+        std::sort(ip_pool.begin(), ip_pool.end(), [](const ip & a, const ip & b){ return a > b; });
+                
         // 222.173.235.246
         // 222.130.177.64
         // 222.82.198.61
