@@ -41,10 +41,24 @@ void print(iplist & ip_list)
                 std::cout << ".";
                 
             }
-            std::cout << *ip_part;
+            std::cout << +*ip_part;
         }
         std::cout << std::endl;
     }
+}
+
+ip to_ip(const vstr & v_str)
+{
+    ip v_uchar(v_str.size());
+
+    //std::for_each(v_str.begin(), v_str.end(), [](const std::string &str){});
+
+    for (auto i = 0; i < v_str.size(); i++)
+    {
+        v_uchar[i] = static_cast<unsigned char>(std::stoi(v_str[i]));
+    }
+
+    return v_uchar;
 }
 
 int main(int argc, const char * argv[])
@@ -57,21 +71,10 @@ int main(int argc, const char * argv[])
         for(std::string line; std::getline(std::cin, line);)
         {
             vstr v = split(line, '\t');
-            ip_pool.push_back(split(v.at(0), '.'));
+            ip_pool.push_back(to_ip(split(v.at(0), '.')));
         }
         
-        std::sort(ip_pool.begin(), ip_pool.end(),
-                  
-                  [](const ip & a, const ip & b) {
-                      for (auto i = 0; i < 4; i++)
-                      {
-                          if (std::stoi(a[i]) < std::stoi(b[i]))
-                              return true;
-                          else if (std::stoi(a[i]) > std::stoi(b[i]))
-                              return false;
-                      }
-                      return false;
-                  });
+        std::sort(ip_pool.begin(), ip_pool.end());
         
         std::reverse(ip_pool.begin(), ip_pool.end());
         
@@ -94,25 +97,25 @@ int main(int argc, const char * argv[])
         // 1.29.168.152
         // 1.1.234.8
         
+        auto l = filter(ip_pool, 1, 1);
+
+        print(l);
+
         // TODO filter by first and second bytes and output
         // ip = filter(46, 70)
-        iplist l = filter(ip_pool, 46, 70);
-        
-        print(l);
-        
-        
         
         // 46.70.225.39
         // 46.70.147.26
         // 46.70.113.73
         // 46.70.29.76
         
-        // TODO filter by any byte and output
-        // ip = filter_any(46)
-        l = filter_any(ip_pool, 46);
+        l = filter(ip_pool, 2, 46, 70);
         
         print(l);
-        
+
+        // TODO filter by any byte and output
+        // ip = filter_any(46)
+
         // 186.204.34.46
         // 186.46.222.194
         // 185.46.87.231
@@ -147,6 +150,10 @@ int main(int argc, const char * argv[])
         // 46.49.43.85
         // 39.46.86.85
         // 5.189.203.46
+
+        l = filter_any(ip_pool, 46);
+        
+        print(l);
     }
     catch(const std::exception &e)
     {

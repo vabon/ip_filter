@@ -2,48 +2,43 @@
 #include "version.h"
 #include <algorithm>
 
-iplist filter(const iplist & l, int first_byte)
+iplist filter(const iplist & l, unsigned n_bytes, ...)
 {
-    auto query = std::to_string(first_byte);
+    va_list vl;
+    va_start(vl, n_bytes);
+    ip chunks(n_bytes);
+    
+    for (auto i = 0; i < n_bytes; i++)
+    {
+        chunks[i] = va_arg(vl, unsigned);
+    }
+    va_end(vl);
+
     
     iplist result;
-    
-    for (const auto & addr : l)
-    {
-        if (!addr[0].compare(query))
-            result.push_back(addr);
-    }
+
+    std::copy_if(l.begin(), l.end(), std::back_inserter(result),
+                 [chunks] (const ip & a)
+                 {
+                     return std::search(a.begin(), a.end(),
+                                        chunks.begin(), chunks.end())
+                                    == a.begin();
+                 }
+                );
     
     return result;
 }
 
-iplist filter(const iplist & l, int first_byte, int second_byte)
+iplist filter_any(const iplist & l, unsigned char any_byte)
 {
-    auto query1 = std::to_string(first_byte);
-    auto query2 = std::to_string(second_byte);
-    
-    iplist result;
-    
-    for (const auto & addr : l)
-    {
-        if (!addr[0].compare(query1) && !addr[1].compare(query2))
-            result.push_back(addr);
-    }
-    
-    return result;
-}
-
-iplist filter_any(const iplist & l, int any_byte)
-{
-    auto query = std::to_string(any_byte);
-    
     iplist result;
 
-    for (const auto & addr : l)
-    {
-        if (std::find(addr.begin(), addr.end(), query) != addr.end())
-            result.push_back(addr);
-    }
-    
+    std::copy_if(l.begin(), l.end(), std::back_inserter(result),
+                 [any_byte] (const ip & a)
+                 {
+                     return std::find(a.begin(), a.end(), any_byte) != a.end();
+                 }
+                );
+
     return result;
 }
